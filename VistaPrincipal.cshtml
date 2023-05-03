@@ -1,0 +1,523 @@
+﻿<script>
+    var oVistaMonitorNotificacionFacturasListado = new ListadoClass('MONITOR_FAC_VistaMonitorNotificacionFacturas');
+    oVistaMonitorNotificacionFacturasListado.sURLDatos = "@Url.Action("ObtenerListaPaginadaMonitorNotificaciones", "MonitorNotificacionFacturas")";
+
+    var sURLDescargarReporteMonitorNotificaciones = "@Url.Action("ObtenerReporteMonitorNotificaciones", "MonitorNotificacionFacturas")";
+
+    oVistaMonitorNotificacionFacturasListado.nRegistrosPorPagina = 15;
+    oVistaMonitorNotificacionFacturasListado.dibujaListado = function (oTabla) {
+
+        var $this = this;
+
+        $oSelectorTabla = $this.oSJQTabla;
+        $oSelectorTabla.find('thead tr').remove();
+        $oSelectorTabla.find('tbody tr').remove();
+
+        if (oTabla.length > 0) {
+            sElementTH = '  <tr>\
+                                <th class="col-xs-2">Factura</th >\
+                                <th class="col-xs-2">Serie</th>\
+                                <th class="col-xs-2">Importe</th>\
+                                <th class="col-xs-2">Fecha Factura</th>\
+                                <th class="col-xs-2">Patente</th>\
+                                <th class="col-xs-2">Fecha Envío</th>\
+                                <th class="col-xs-2">Folio Servicio</th>\
+                                <th class="col-xs-2">Ref. SORF</th>\
+                                <th class="col-xs-2">Oper. Sinc.</th>\
+                                <th class="col-xs-2">Clave Cliente</th>\
+                                <th class="col-xs-2">Cliente</th>\
+                                <th class="col-xs-2">Clave Fact. A</th>\
+                                <th class="col-xs-2">Facturar A</th>\
+                                <th class="col-xs-2">Clave Problema</th>\
+                                <th class="col-xs-2">Problema</th>\
+                                <th class="col-xs-2">Reintentos Envío</th>\
+                            </tr>';
+
+            $oSelectorTabla.find('thead').append(sElementTH);
+            for (x = 0; x < oTabla.length; x++) {
+
+                sElementTR = '  <tr>\
+                                    <td class="col-xs-2">' + oTabla[x].Factura + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].Serie + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].Importe + '</td>\
+                                    <td class="col-xs-2">' + MSTimeToUNIXTime(oTabla[x].FechaFactura) + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].Patente + '</td>\
+                                    <td class="col-xs-2">' + MSTimeToUNIXTime(oTabla[x].FechaEnvio) + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].FolioServicio + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].ReferenciaSORF + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].Operacion + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].IdCliente + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].NombreCliente + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].IdFacturarA + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].NombreFacturarA + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].CodigoError + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].DescripcionError + '</td>\
+                                    <td class="col-xs-2">' + oTabla[x].ReintentosEnvio + '</td>\
+                                </tr>';
+
+                $oSelectorTabla.find('tbody').append($(sElementTR));
+            }
+
+            jQuery.data($oSelectorTabla[0], "Listado", oTabla);
+
+            $this.clickListado();
+        } else {
+            $oSelectorTabla.find('tbody').append('<tr><td>No existen Resultados</td></tr>');
+        }
+
+    }
+
+    oVistaMonitorNotificacionFacturasListado.clickListado = function () {
+
+        var $this = this;
+        //$oSelectorTabla = $this.oSJQTabla;
+
+    }
+
+</script>
+<div class="container-fluid" id="MONITOR_FAC_VistaMonitorNotificacionFacturas">
+    <div class="row">
+        <div class="col-5">
+            <div class="card card-primary card-outline">
+                <div class="card-body">
+                    <div class="card-title">
+                        <div class="col-12">
+                            <form>
+                                <label>Fecha</label>
+                                <div class="form-group row">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exampleRadios" id="MONITOR_FAC_TipoFiltro" value="11" checked>
+                                        <label class="form-check-label col-md" for="MONITOR_FAC_FechaEnvio">
+                                            Envío
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exampleRadios" id="MONITOR_FAC_TipoFiltro" value="12">
+                                        <label class="form-check-label col-md" for="MONITOR_FAC_FechaFacturada">
+                                            Factura
+                                        </label>
+                                    </div>
+                                    <div class="form-group col-md">
+                                        <div class="input-group input-group-sm date">
+                                            <input id="MONITOR_FAC_FechaDel" type="text" class="form-control" autocomplete="off">
+                                            <span class="input-group-text input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md">
+                                        <div class="input-group input-group-sm date">
+                                            <input id="MONITOR_FAC_FechaAl" type="text" class="form-control" autocomplete="off">
+                                            <span class="input-group-text input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exampleRadios" id="MONITOR_FAC_TipoFiltro" onclick="LimpiarDatos()" value="2">
+                                        <label class="form-check-label col-md" for="MONITOR_FAC_FolioServicios">
+                                            Folio Servicio
+                                        </label>
+                                        &nbsp;
+                                    </div>
+                                    <div class="col-sm">
+                                        <input class="form-control form-control-sm" id="MONITOR_FAC_FolioServiciosInput" type="text">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exampleRadios" id="MONITOR_FAC_TipoFiltro" onclick="LimpiarDatos()" value="3">
+                                        <label class="form-check-label col-md" for="MONITOR_FAC_Cliente">
+                                            Cliente
+                                        </label>
+                                    </div>
+                                    <div class="col-md" style="padding-right : 0 !important">
+                                        <div class="form-group input-group input-group-sm">
+                                            <label class="" for="txtCliente"></label>
+                                            <input type="text" id="txtCliente" class="form-control form-control-sm " value="" placeholder="Seleccione un cliente">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exampleRadios" id="MONITOR_FAC_TipoFiltro" onclick="LimpiarDatos()" value="4">
+                                        <label class="form-check-label col-md" for="MONITOR_FAC_FacturarA">
+                                            Facturar A
+                                        </label>
+                                    </div>
+                                    <div class="col-md" style="padding-right : 0 !important">
+                                        <div class="form-group input-group input-group-sm">
+                                            <label class="" for="txtFacturarA"></label>
+                                            <input type="text" id="txtFacturarA" class="form-control form-control-sm " value="" placeholder="Facturar A">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-primary" id="MONITOR_FAC_btnBuscar"><i class="material-icons">search</i><span>Buscar</span></button>
+        </div>
+        <div class="col-7 ">
+            <div class="card card-secondary">
+                <div class="card-header">
+                    <h3 class="card-title">Códigos Error</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <label>Filtros y descripción</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 scroll">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="select-all" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Seleccionar todo</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="0" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Ok</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Clave de patente vacía</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="2" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">No se pudo obtener de ERP el nombre del PDF de la factura</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="3" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">No se pudo localizar ruta de SORF para poder generar PDF de la solicitud</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="4" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">No existe folio de servicio en SORF</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="5" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Error interno al generar el PDF de la solicitud de servicio</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="6" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Error al obtener datos generales para envío a PROCEDA</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="7" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Referencia SORF o Folio de Servicios vacíos</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="8" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Referencia no localizada dentro de SORF</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="9" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">La clave de patente de la referencia SORF no existe en catálogo de agentes aduanales</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="10" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">La clave del 'facturar A' obtenida de ERP está vacía</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="11" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">No se encontró un ID_PROCEDA asociado a la clave del cliente en ERP.</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="12" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">La clave del cliente no existe en catálogos de SORF</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="13" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Error interno al generar XML para PROCEDA</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="14" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">La clave de patente capturada para la factura viene en ceros desde ERP, en SORF la patente está vacía</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="15" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">La patente de la factura que viene de ERP no existe en catálogos de SORF ni la capturada en referencia de SORF</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="16" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Error al parsear respuesta de PROCEDA</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="17" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Operación rechazada por PROCEDA</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="18" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Error de comunicación con PROCEDA</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="19" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Error desconocido</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="20" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Cancelación de factura previa rechazada por PROCEDA</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="21" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">PDF generado por SORF está vacío</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="22" id="MONITOR_FAC_CodigoError" name="codigo_check" />
+                                <label class="form-check-label" for="MONITOR_FAC_CodigoError">Falló generación de PDF librería XFRX</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <button class="btn btn-primary btn-sm btn-success float-right" id="MONITOR_FAC_btnExportarExcel">
+                <i class="fa fa-file-excel-o" aria-hidden="true"></i><span>Exportar Excel</span>
+            </button>
+        </div>
+
+    </div>
+
+    <div class="col-md-12">
+        <div class="row">
+            &nbsp;
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped table-hover Listado" style="width:100%">
+                        <thead></thead>
+                        <tbody><tr><td></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="Paginado"></div>
+            </div>
+        </div>
+        &nbsp;
+    </div>
+</div>
+
+<script>
+
+    $('#select-all').click(function () {
+        $('input[name="codigo_check"]').prop('checked', this.checked);
+    });
+
+    $(document).ready(function () {
+
+        $('#MONITOR_FAC_FolioServiciosInput').setValidate({
+            sType: 'TEXT',
+            sGroup: 'FolioServicioFiltros',
+            nMaxLength: 15,
+            nMinLength: 7,
+            bRequired: true
+        });
+
+        oLaunchSeekOptions = {
+            sController: 'Cliente',
+            sMetodo: 'ViewCliente',
+            sMetodoTablero: 'ObtenerTableroLaunchSeek',
+            namePropertyShow: 'Nombre',
+            sTitle: 'Seleccione un cliente',
+            sSize: 'large'
+        }
+
+        aSetValues = [{ nameProperty: "idRegistro", selectorJQuery: "#txtCliente" },
+        { nameProperty: "RazonSocial", selectorJQuery: "#txtCliente_LaunchSeekText" }];
+
+        $('#txtCliente').LaunchSeek(oLaunchSeekOptions, aSetValues);
+
+        oLaunchSeekOptions = {
+            sController: 'FacturarA',
+            sMetodo: 'ViewFacturarA',
+            namePropertyShow: 'razonSocial',
+            sTitle: 'Seleccione una opción',
+            sSize: 'large'
+        }
+
+        aSetValues = [{ nameProperty: "idRegistro", selectorJQuery: "#txtFacturarA" },
+        { nameProperty: "razonSocial", selectorJQuery: "#txtFacturarA_LaunchSeekText" }]
+        $('#txtFacturarA').LaunchSeek(oLaunchSeekOptions, aSetValues);
+
+    });
+
+    function LimpiarDatos() {
+        $('#MONITOR_FAC_FolioServiciosInput').val('');
+        $('#txtCliente_LaunchSeekText').val('');
+        $('#txtFacturarA_LaunchSeekText').val('');
+        $('#MONITOR_FAC_FechaDel').data('DateTimePicker').date(GetCurrentDate());
+        $('#MONITOR_FAC_FechaAl').data('DateTimePicker').date(GetCurrentDate());
+    }
+
+    $('#MONITOR_FAC_FechaDel').datetimepicker({ format: 'DD/MM/YYYY', locale: 'es' });
+    $('#MONITOR_FAC_FechaAl').datetimepicker({ format: 'DD/MM/YYYY', locale: 'es' });
+
+    $('#MONITOR_FAC_FechaDel').data('DateTimePicker').date(GetCurrentDate());
+    $('#MONITOR_FAC_FechaAl').data('DateTimePicker').date(GetCurrentDate());
+
+    $('#MONITOR_FAC_btnBuscar').click(function () {
+
+        var filtrosFormulario = [];
+        var nTipoFiltroSelected = 0;
+        var bFiltrosValidados = true;
+        var sMensaje = "";
+
+        $("input:radio[name='exampleRadios']:checked").each(function () {
+            filtrosFormulario.push($(this).val());
+            nTipoFiltroSelected = parseInt($(this).val());
+        });
+
+        //console.log("El valor del filtro seleccionado del formulario es: " + filtrosFormulario.join(", "));
+
+        var filtrosCheckbox = [];
+        $("input:checkbox[name='codigo_check']:checked").each(function () {
+            filtrosCheckbox.push($(this).val());
+        });
+
+        //console.log("Los valores de los filtros seleccionados son: " + filtrosCheckbox.join(", "));
+         
+        switch (nTipoFiltroSelected) {
+            case 11:
+            case 12:
+                if (!($('#MONITOR_FAC_FechaDel').val().length >= 10 ? true : false) || !($('#MONITOR_FAC_FechaAl').val().length >= 10 ? true : false)) {
+                    bFiltrosValidados = false;
+                }
+                sMensaje = "Favor de introducir la fecha de " + (nTipoFiltroSelected === 11 ? 'envío' : 'factura' );
+                break;
+            case 2:
+                bFiltrosValidados = ($('#MONITOR_FAC_FolioServiciosInput').val().length >= 7 ? true : false);
+                sMensaje = "Favor de introducir el folio de servicio";
+                break;
+            case 3:
+                bFiltrosValidados = ($('#txtCliente').val().length > 0 ? true : false);
+                sMensaje = "Favor de seleccionar el Cliente";
+                break;
+            case 4:
+                bFiltrosValidados = ($('#txtFacturarA').val().length > 0 ? true : false);
+                sMensaje = "Favor de seleccionar una opción";
+                break;
+            default: bFiltrosValidados = false;
+        }
+
+        if (!bFiltrosValidados) {
+            Toast.show({ message: sMensaje });
+        } else {
+
+            //Toast.show({ message: 'OK' });
+
+            oData = {
+                TipoFiltro: nTipoFiltroSelected,
+                FechaInicio: $('#MONITOR_FAC_FechaDel').val(),
+                FechaFinal: $('#MONITOR_FAC_FechaAl').val(),
+                FolioServicio: $('#MONITOR_FAC_FolioServiciosInput').val(),
+                IdCliente: $('#txtCliente').val(),
+                IdFacturarA: $('#txtFacturarA').val(),
+                ListaCodigoError: filtrosCheckbox.join(", "),
+                TipoConsultaReporteador: 1
+            }
+
+            //console.log(oData);
+            showCargando();
+
+            oVistaMonitorNotificacionFacturasListado.nPaginaSeleccionada = 1;
+            oVistaMonitorNotificacionFacturasListado.consulta(oData, true, function () { hideCargando(); });
+        }
+
+    });
+
+    $('#MONITOR_FAC_btnExportarExcel').click(function () {
+        showCargando();
+        oData = ValidaFiltrosVista();
+        if (Object.keys(oData).length) {
+            GenerarReporte(oData, sURLDescargarReporteMonitorNotificaciones);
+            hideCargando();
+        }
+    });
+
+    function ValidaFiltrosVista() {
+
+        var oData = {};
+        var filtrosFormulario = [];
+        var nTipoFiltroSelected = 0;
+        var bFiltrosValidados = true;
+        var sMensaje = "";
+
+        $("input:radio[name='exampleRadios']:checked").each(function () {
+            filtrosFormulario.push($(this).val());
+            nTipoFiltroSelected = parseInt($(this).val());
+        });
+
+        //console.log("El valor del filtro seleccionado del formulario es: " + filtrosFormulario.join(", "));
+
+        var filtrosCheckbox = [];
+        $("input:checkbox[name='codigo_check']:checked").each(function () {
+            filtrosCheckbox.push($(this).val());
+        });
+
+        //console.log("Los valores de los filtros seleccionados son: " + filtrosCheckbox.join(", "));
+
+        switch (nTipoFiltroSelected) {
+            case 11:
+            case 12:
+                if (!($('#MONITOR_FAC_FechaDel').val().length >= 10 ? true : false) || !($('#MONITOR_FAC_FechaAl').val().length >= 10 ? true : false)) {
+                    bFiltrosValidados = false;
+                }
+                sMensaje = "Favor de introducir la fecha de " + (nTipoFiltroSelected === 11 ? 'envío' : 'factura');
+                break;
+            case 2:
+                bFiltrosValidados = ($('#MONITOR_FAC_FolioServiciosInput').val().length >= 7 ? true : false);
+                sMensaje = "Favor de introducir el folio de servicio";
+                break;
+            case 3:
+                bFiltrosValidados = ($('#txtCliente').val().length > 0 ? true : false);
+                sMensaje = "Favor de seleccionar el Cliente";
+                break;
+            case 4:
+                bFiltrosValidados = ($('#txtFacturarA').val().length > 0 ? true : false);
+                sMensaje = "Favor de seleccionar una opción";
+                break;
+            default: bFiltrosValidados = false;
+        }
+
+        if (!bFiltrosValidados) {
+
+            Toast.show({ message: sMensaje });
+
+        } else {
+
+            //Toast.show({ message: 'OK' });
+
+            oData = {
+                TipoFiltro: nTipoFiltroSelected,
+                FechaInicio: $('#MONITOR_FAC_FechaDel').val(),
+                FechaFinal: $('#MONITOR_FAC_FechaAl').val(),
+                FolioServicio: $('#MONITOR_FAC_FolioServiciosInput').val(),
+                IdCliente: $('#txtCliente').val(),
+                IdFacturarA: $('#txtFacturarA').val(),
+                ListaCodigoError: filtrosCheckbox.join(", "),
+                TipoConsultaReporteador: 1
+            }
+
+        }
+
+        return oData;
+    }
+
+</script>
+<style>
+    .colscroll {
+        display: inline-block;
+    }
+
+    div.scroll {
+        width: 600px;
+        height: 220px;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+</style>
